@@ -13,7 +13,7 @@ const CLASSES = [
 const SUREN = [
   "En Nas – Kul eudhu birabbinas","Felek – Kul eudhu birabbil felek",
   "Ihlas – Kul huwallahu ehad","Leheb – Tebbet jedaa","En Nasr – Idha xhaae",
-  "Kafirun – Kul jaa ejjuhelkafirun","Keuther – Inna eatajna","El Maun – Eraejteledhi",
+  "Kafirun – Kul jaa ejjuhel kafirun","Keuther – Inna eatajna","El Maun – Eraejteledhi",
   "Kurejsh – Li iila fikurajsh","El Fiil – Elem tera kejfe","Ettehijjatu",
   "Allahumme sal-li ala","Allahumme barik ala","Allahumm rabbena","Rabbenegfirlii",
   "Allahumme inna nesteinuke","Allahumme ijjaka neabudu",
