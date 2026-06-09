@@ -21,10 +21,6 @@ const SUREN = [
 const PART = [{e:"⭐",l:"Shkëlqyer"},{e:"😊",l:"Mirë"},{e:"😐",l:"Mesatar"},{e:"😴",l:"Pak"}];
 const GOLD="#C9A84C", RED="#8B1A1A", DARK="#1A0A00";
 
-const { data: { user } } = await supabase.auth.getUser();
-
-if (!user) {
-    return <LoginScreen />;
 }
 
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
