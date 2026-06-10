@@ -267,8 +267,6 @@ function App(){
             React.createElement("div",{style:{fontWeight:700,fontSize:14,color:DARK}},"Islamische Gemeinschaft Wil"),
             React.createElement("div",{style:{fontSize:10,color:GOLD,fontWeight:600,letterSpacing:1.2,textTransform:"uppercase"}},"Maktab · Unterrichtsverwaltung")
           )
-                            
-        ),
         ),
     React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"12px 0",marginLeft:"auto"}},
       React.createElement("span",{style:{fontSize:12,color:"#AAA"}},user?.email?.split("@")[0]),
