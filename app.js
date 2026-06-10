@@ -21,6 +21,15 @@ const SUREN = [
 const PART = [{e:"⭐",l:"Shkëlqyer"},{e:"😊",l:"Mirë"},{e:"😐",l:"Mesatar"},{e:"😴",l:"Pak"}];
 const GOLD="#C9A84C", RED="#8B1A1A", DARK="#1A0A00";
 
+// Passwort-Reset Token aus URL abfangen
+const urlParams = new URLSearchParams(window.location.hash.replace("#","?"));
+const accessToken = urlParams.get("access_token");
+const refreshToken = urlParams.get("refresh_token");
+const type = urlParams.get("type");
+if (accessToken && type === "recovery") {
+  supabase.auth.setSession({access_token: accessToken, refresh_token: refreshToken});
+}
+
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 async function getAll(table, order) {
   const { data, error } = await supabase.from(table).select("*").order(order);
@@ -157,6 +166,43 @@ function LoginScreen({onLogin}){
   );
 }
 
+// ── RESET PASSWORD ─────────────────────────────────────────────────────────────────────
+function ResetPasswordScreen(){
+  const [password,setPassword]=useState("");
+  const [done,setDone]=useState(false);
+  const [loading,setLoading]=useState(false);
+
+  async function handleReset(){
+    setLoading(true);
+    const {error}=await supabase.auth.updateUser({password});
+    if(!error){setDone(true);window.location.hash="";}
+    setLoading(false);
+  }
+
+  if(done) return React.createElement("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:DARK,fontFamily:"system-ui"}},
+    React.createElement("div",{style:{background:"white",borderRadius:20,padding:"2rem",textAlign:"center",maxWidth:340,width:"90%"}},
+      React.createElement("div",{style:{fontSize:40,marginBottom:12}},"✅"),
+      React.createElement("div",{style:{fontSize:16,fontWeight:700,marginBottom:8}},"Passwort geändert!"),
+      React.createElement("div",{style:{fontSize:13,color:"#888",marginBottom:16}},"Du kannst dich jetzt einloggen."),
+      React.createElement("button",{onClick:()=>window.location.reload(),style:{padding:"10px 24px",background:`linear-gradient(135deg,${GOLD},#E8C55A)`,border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:DARK}},"Zum Login")
+    )
+  );
+
+  return React.createElement("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:DARK,fontFamily:"system-ui",padding:"1rem"}},
+    React.createElement("div",{style:{background:"white",borderRadius:20,padding:"2rem",maxWidth:360,width:"100%",border:`1.5px solid ${GOLD}33`}},
+      React.createElement("div",{style:{textAlign:"center",marginBottom:"1.5rem"}},
+        React.createElement("div",{style:{fontSize:32,marginBottom:8}},"🔑"),
+        React.createElement("div",{style:{fontSize:18,fontWeight:700,color:DARK}},"Neues Passwort setzen")
+      ),
+      React.createElement("input",{value:password,onChange:e=>setPassword(e.target.value),type:"password",placeholder:"Neues Passwort...",
+        onKeyDown:e=>{if(e.key==="Enter")handleReset();},
+        style:{width:"100%",padding:"11px 14px",border:`1.5px solid ${GOLD}`,borderRadius:10,fontSize:14,background:"#FFFDF5",color:DARK,fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:12}}),
+      React.createElement("button",{onClick:handleReset,disabled:loading,style:{width:"100%",padding:"12px",background:`linear-gradient(135deg,${GOLD},#E8C55A)`,border:"none",borderRadius:10,cursor:"pointer",fontSize:14,fontWeight:700,color:DARK}},
+        loading?"Speichern...":"Passwort speichern")
+    )
+  );
+}
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [page,setPage]=useState("overview");
@@ -170,6 +216,7 @@ function App(){
   const [confirm,setConfirm]=useState(null);
   const [user,setUser]=useState(null);
   const [authChecked,setAuthChecked]=useState(false);
+  if(type==="recovery") return React.createElement(ResetPasswordScreen,null);
 
   // Check existing session on load
   useEffect(()=>{
