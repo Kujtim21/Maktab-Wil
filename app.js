@@ -306,181 +306,23 @@ function App(){
   );
 
   return React.createElement("div",{style:{minHeight:"100vh",background:"#FAFAF8",fontFamily:"system-ui,sans-serif",color:DARK}},
-    const [menuOpen, setMenuOpen] = useState(false);
-
-const handleLogout = () => {
-  setConfirm({
-    msg: "Willst du dich wirklich abmelden?",
-    onYes: async () => {
-      setConfirm(null);
-      await supabase.auth.signOut();
-    }
-  });
-};
-
-React.createElement(
-  "div",
-  {
-    style: {
-      background: "white",
-      borderBottom: "2px solid rgba(201,168,76,0.2)",
-      boxShadow: "0 2px 16px rgba(201,168,76,0.12)",
-      position: "sticky",
-      top: 0,
-      zIndex: 100
-    }
-  },
-  React.createElement(
-    "div",
-    {
-      style: {
-        maxWidth: "1100px",
-        margin: "0 auto",
-        padding: "0 1.25rem"
-      }
-    },
-    React.createElement(
-      "div",
-      {
-        style: {
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          padding: "10px 0 0",
-          flexWrap: "wrap"
-        }
-      },
-      React.createElement("div", {
-        style: {
-          width: "40px",
-          height: "40px",
-          borderRadius: "10px",
-          background: "linear-gradient(135deg, #C9A84C, #E8C55A)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "20px"
-        }
-      }, "📚"),
-      React.createElement(
-        "div",
-        null,
-        React.createElement("div", {
-          style: { fontWeight: 700, fontSize: "14px", color: "#1A0A00" }
-        }, "Islamische Gemeinschaft Wil"),
-        React.createElement("div", {
-          style: {
-            fontSize: "10px",
-            color: "#C9A84C",
-            fontWeight: 600,
-            letterSpacing: "1.2px",
-            textTransform: "uppercase"
-          }
-        }, "Maktab Unterrichtsverwaltung")
-      )
+    React.createElement("div",{style:{background:"white",borderBottom:`2px solid ${GOLD}33`,boxShadow:`0 2px 16px rgba(201,168,76,0.12)`,position:"sticky",top:0,zIndex:100}},
+React.createElement("div",{style:{maxWidth:1100,margin:"0 auto",padding:"0 1.25rem"}},
+  // Zeile 1: Logo
+  React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,padding:"10px 0 0"}},
+    React.createElement("div",{style:{width:40,height:40,borderRadius:10,background:`linear-gradient(135deg,${GOLD},#E8C55A)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}},"🕌"),
+    React.createElement("div",null,
+      React.createElement("div",{style:{fontWeight:700,fontSize:14,color:DARK}},"Islamische Gemeinschaft Wil"),
+      React.createElement("div",{style:{fontSize:10,color:GOLD,fontWeight:600,letterSpacing:1.2,textTransform:"uppercase"}},"Maktab · Unterrichtsverwaltung")
+    )
+  ),
+  // Zeile 2: Navigation + Abmelden
+  React.createElement("div",{style:{display:"flex",alignItems:"center",gap:4}},
+    syncing&&React.createElement("div",{style:{fontSize:11,color:GOLD,padding:"3px 8px",background:`${GOLD}14`,borderRadius:20,flexShrink:0}},"⟳"),
+    React.createElement("nav",{style:{display:"flex",gap:2,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none",flex:1}},
+      NAV.map(n=>React.createElement("button",{key:n.id,onClick:()=>setPage(n.id),style:{padding:"8px 14px",border:"none",background:page===n.id?`${GOLD}18`:"transparent",color:page===n.id?GOLD:"#888",fontSize:13,fontWeight:page===n.id?700:400,borderRadius:8,cursor:"pointer",fontFamily:"inherit",borderBottom:page===n.id?`2px solid ${GOLD}`:"2px solid transparent",whiteSpace:"nowrap"}},n.label))
     ),
-
-    React.createElement(
-      "div",
-      {
-        style: {
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          marginTop: "10px",
-          marginBottom: "10px"
-        }
-      },
-      React.createElement(
-        "button",
-        {
-          onClick: () => setMenuOpen(v => !v),
-          style: {
-            padding: "8px 12px",
-            borderRadius: "10px",
-            border: "1px solid rgba(201,168,76,0.25)",
-            background: "white",
-            cursor: "pointer",
-            fontFamily: "inherit",
-            fontSize: "14px"
-          }
-        },
-        "☰ Menü"
-      ),
-
-      React.createElement(
-        "div",
-        {
-          style: {
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            flex: 1
-          }
-        },
-        NAV.map(n =>
-          React.createElement(
-            "button",
-            {
-              key: n.id,
-              onClick: () => {
-                setPage(n.id);
-                setMenuOpen(false);
-              },
-              style: {
-                padding: "8px 14px",
-                border: "none",
-                background: page === n.id ? "rgba(201,168,76,0.15)" : "transparent",
-                color: page === n.id ? "#C9A84C" : "#888",
-                fontSize: "13px",
-                fontWeight: page === n.id ? 700 : 400,
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                whiteSpace: "nowrap"
-              }
-            },
-            n.label
-          )
-        )
-      )
-    ),
-
-    menuOpen &&
-      React.createElement(
-        "div",
-        {
-          style: {
-            background: "#fffaf0",
-            border: "1px solid rgba(201,168,76,0.22)",
-            borderRadius: "14px",
-            padding: "10px",
-            marginBottom: "10px",
-            display: "grid",
-            gap: "8px"
-          }
-        },
-        React.createElement(
-          "button",
-          {
-            onClick: handleLogout,
-            style: {
-              width: "100%",
-              padding: "10px 12px",
-              borderRadius: "10px",
-              border: "1px solid rgba(201,168,76,0.25)",
-              background: "white",
-              cursor: "pointer",
-              fontFamily: "inherit",
-              textAlign: "left"
-            }
-          },
-          "Abmelden"
-        )
-      )
+    React.createElement("button",{onClick:()=>supabase.auth.signOut(),title:"Abmelden",style:{flexShrink:0,padding:"6px 10px",borderRadius:20,border:`1px solid ${GOLD}44`,background:"white",color:"#AAA",fontSize:11,cursor:"pointer",fontFamily:"inherit"}},"↩")
   )
 )
     ),
