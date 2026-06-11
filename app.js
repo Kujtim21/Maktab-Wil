@@ -296,7 +296,7 @@ function App(){
   const delLehrer    = wrap(async id => { await deleteRow("lehrer",id); setLehrer(l=>l.filter(x=>x.id!==id)); });
   const saveProgress = wrap(async p => { setProgress(p); await setFortschritt(p); });
   const saveClassProgress  = p => saveProgress({...progress,[p.cid]:{page:p.val,updatedAt:new Date().toISOString().slice(0,10)}});
-  const saveStudentProgress= (sid,text) => saveProgress({...progress,students:{...(progress.students||{}),[sid]:{text,updatedAt:new Date().toISOString().slice(0,10)}}});
+  const saveStudentProgress= (sid,data) => saveProgress({...progress,students:{...(progress.students||{}),[sid]:typeof data==="string"?{text:data,updatedAt:new Date().toISOString().slice(0,10)}:data}});
 
   const askConfirm=(msg,onYes)=>setConfirm({msg,onYes});
   const clsById=id=>CLASSES.find(c=>c.id===id)||CLASSES[0];
@@ -686,16 +686,35 @@ function Students({students,lektionen,byCls,clsById,getStats,getLastAtt,saveStud
           ),
           React.createElement(Btn,{onClick:()=>{setEditData({vorname:s.vorname,nachname:s.nachname,geburtsdatum:s.geburtsdatum||"",eltern:s.eltern||"",telefon:s.telefon||"",klasse:s.klasse,schuljahr:s.schuljahr||""});setEditModal(true);}},"✏️")
         ),
-        showProg&&React.createElement("div",{style:{background:c.light,border:`1.5px solid ${c.border}33`,borderRadius:12,padding:"12px 14px",marginBottom:14}},
-          React.createElement("div",{style:{fontSize:11,color:c.color,fontWeight:600,textTransform:"uppercase",letterSpacing:1,marginBottom:8}},s.klasse==="A"?"📖 Aktuelle Sure":"✏️ Aktueller Buchstabe"),
-          s.klasse==="A"
-            ? React.createElement("select",{value:stuProg?.text||"",onChange:e=>saveStudentProgress(s.id,e.target.value),style:{width:"100%",padding:"9px 12px",border:`1.5px solid ${c.border}`,borderRadius:10,fontSize:13,background:"white",color:stuProg?.text?DARK:"#AAA",fontFamily:"inherit",outline:"none",cursor:"pointer"}},
-                React.createElement("option",{value:""},"— Sure auswählen —"),
-                SUREN.map(sr=>React.createElement("option",{key:sr,value:sr},sr))
-              )
-            : React.createElement("input",{defaultValue:stuProg?.text||"",onBlur:e=>saveStudentProgress(s.id,e.target.value.trim()),onKeyDown:e=>{if(e.key==="Enter")saveStudentProgress(s.id,e.target.value.trim());},placeholder:"z.B. Ba, Ta, Tha...",style:{width:"100%",padding:"9px 12px",border:`1.5px solid ${c.border}`,borderRadius:10,fontSize:13,background:"white",color:DARK,fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}),
-          stuProg?.updatedAt&&React.createElement("div",{style:{fontSize:10,color:"#BBB",marginTop:4}},`Zuletzt: ${fmtDate(stuProg.updatedAt)}`)
-        ),
+showProg&&React.createElement("div",{style:{background:c.light,border:`1.5px solid ${c.border}33`,borderRadius:12,padding:"12px 14px",marginBottom:14}},
+  React.createElement("div",{style:{fontSize:11,color:c.color,fontWeight:600,textTransform:"uppercase",letterSpacing:1,marginBottom:10}},s.klasse==="A"?"📖 Suren – Fortschritt":"✏️ Aktueller Buchstabe"),
+  s.klasse==="A"
+    ? React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:4}},
+        SUREN.map((sr,i)=>{
+          const checked=(stuProg?.checked||[]).includes(sr);
+          const isNext=!checked&&(stuProg?.checked||[]).length===i;
+          return React.createElement("div",{key:sr,
+            onClick:()=>{
+              const cur=stuProg?.checked||[];
+              const next=checked?cur.filter(x=>x!==sr):[...cur,sr];
+              saveStudentProgress(s.id,{checked:next,updatedAt:new Date().toISOString().slice(0,10)});
+            },
+            style:{display:"flex",alignItems:"center",gap:10,padding:"7px 10px",borderRadius:8,cursor:"pointer",
+              background:checked?"#F0FFF4":isNext?`${GOLD}11`:"white",
+              border:`1px solid ${checked?"#27AE6033":isNext?GOLD+"44":"#E8D08033"}`,
+              transition:"all 0.15s"}},
+            React.createElement("div",{style:{width:20,height:20,borderRadius:6,border:`2px solid ${checked?"#27AE60":isNext?GOLD:"#DDD"}`,background:checked?"#27AE60":isNext?`${GOLD}22`:"white",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:12,color:"white",fontWeight:700}},checked?"✓":""),
+            React.createElement("span",{style:{fontSize:13,color:checked?"#27AE60":isNext?DARK:"#AAA",fontWeight:checked||isNext?600:400,flex:1}},sr),
+            isNext&&React.createElement("span",{style:{fontSize:10,color:GOLD,fontWeight:600}},"← aktuell")
+          );
+        }),
+        React.createElement("div",{style:{marginTop:8,fontSize:12,color:"#888"}},
+          `${(stuProg?.checked||[]).length} von ${SUREN.length} gelernt`
+        )
+      )
+    : React.createElement("input",{defaultValue:stuProg?.text||"",onBlur:e=>saveStudentProgress(s.id,{text:e.target.value.trim(),updatedAt:new Date().toISOString().slice(0,10)}),onKeyDown:e=>{if(e.key==="Enter")saveStudentProgress(s.id,{text:e.target.value.trim(),updatedAt:new Date().toISOString().slice(0,10)});},placeholder:"z.B. Ba, Ta, Tha...",style:{width:"100%",padding:"9px 12px",border:`1.5px solid ${c.border}`,borderRadius:10,fontSize:13,background:"white",color:DARK,fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}),
+  stuProg?.updatedAt&&React.createElement("div",{style:{fontSize:10,color:"#BBB",marginTop:4}},`Zuletzt: ${fmtDate(stuProg.updatedAt)}`)
+),
         st.consec>=3&&React.createElement("div",{style:{background:"#FFF0F0",border:"1px solid #E74C3C33",borderRadius:10,padding:"8px 12px",marginBottom:14,fontSize:13,color:RED}},`⚠️ ${st.consec}× hintereinander abwesend`),
         React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}},
           [{v:st.total,l:"Lektionen"},{v:st.present,l:"Anwesend",col:"#27AE60"},{v:st.absent,l:"Abwesend",col:RED},{v:st.avg!==null?PART[Math.min(3,Math.round(st.avg))].e:"—",l:"Ø Mitarbeit"}].map(m=>
