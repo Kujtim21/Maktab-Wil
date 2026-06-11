@@ -217,8 +217,11 @@ function ProfileMenu({user, onSignOut}){
     // Dropdown
     open&&React.createElement("div",{style:{position:"absolute",right:0,top:42,background:"white",borderRadius:14,boxShadow:"0 8px 32px rgba(0,0,0,0.15)",border:`1.5px solid ${GOLD}33`,minWidth:180,zIndex:200,overflow:"hidden"}},
       React.createElement("div",{style:{padding:"12px 16px",borderBottom:`1px solid ${GOLD}22`}},
-        React.createElement("div",{style:{fontSize:13,fontWeight:600,color:DARK}}),
-        React.createElement("div",{style:{fontSize:12,color:"#AAA"}},user?.email)
+        React.createElement("div",{style:{fontSize:13,fontWeight:600,color:DARK}},user?.email?.split("@")[0]),
+        React.createElement("div",{style:{fontSize:12,color:"#AAA",marginTop:2}},user?.email),
+        React.createElement("div",{style:{marginTop:6,display:"inline-block",padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:isAdmin?`${GOLD}18`:"#F5F0E8",color:isAdmin?GOLD:"#888",border:`1px solid ${isAdmin?GOLD+"44":"#E8D08044"}`}},
+          isAdmin ? "⭐ Administrator" : "👤 Lehrer"
+        )
       ),
       confirm
         ? React.createElement("div",{style:{padding:"12px 16px"}},
