@@ -645,6 +645,109 @@ function Overview({students,lektionen,lehrer,byCls,clsById,getStats,setPage,prog
   );
 }
 
+// ── SURE TEST ─────────────────────────────────────────────────────────────────
+function SureTest({s, c, stuProg, progress, saveStudentProgress}){
+  const [showTest, setShowTest] = useState(false);
+  const [selectedSure, setSelectedSure] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  // Welche Suren sind verfügbar zum Testen?
+  // Klasa A: bereits abgehakte Suren
+  // Klasa B: alle SUREN (Buchstaben bleiben Freitext, aber wir testen trotzdem)
+  // Klasa C1/C2: alle SUREN
+  function getTestSuren(){
+    if(s.klasse==="A") return (stuProg?.checked||[]);
+    return SUREN;
+  }
+
+  const testSuren = getTestSuren();
+  const tests = stuProg?.tests || [];
+
+  async function addTest(bestanden){
+    if(!selectedSure) return;
+    setSaving(true);
+    const newTest = {
+      sure: selectedSure,
+      datum: new Date().toISOString().slice(0,10),
+      bestanden
+    };
+    const existing = stuProg || {};
+    await saveStudentProgress(s.id, {
+      ...existing,
+      tests: [newTest, ...(existing.tests||[])].slice(0,50),
+      updatedAt: new Date().toISOString().slice(0,10)
+    });
+    setSelectedSure("");
+    setSaving(false);
+  }
+
+  return React.createElement("div",{style:{background:"white",borderRadius:16,border:`1.5px solid ${GOLD}22`,padding:"1rem",marginBottom:"1rem"}},
+    // Header
+    React.createElement("div",{
+      style:{display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer"},
+      onClick:()=>setShowTest(v=>!v)
+    },
+      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
+        React.createElement("div",{style:{width:32,height:32,borderRadius:8,background:`${GOLD}18`,border:`1.5px solid ${GOLD}33`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}},"🎯"),
+        React.createElement("div",null,
+          React.createElement("div",{style:{fontSize:14,fontWeight:700,color:DARK}},"Sure testen"),
+          React.createElement("div",{style:{fontSize:11,color:"#AAA"}},
+            tests.length===0 ? "Noch keine Tests" :
+            `${tests.length} Test${tests.length!==1?"s":""} · Letzter: ${fmtDate(tests[0].datum)}`
+          )
+        )
+      ),
+      React.createElement("span",{style:{fontSize:18,color:"#AAA",display:"inline-block",transform:showTest?"rotate(180deg)":"none",transition:"transform 0.2s"}},"⌄")
+    ),
+
+    // Body
+    showTest && React.createElement("div",{style:{marginTop:14}},
+      // Sure auswählen
+      testSuren.length === 0
+        ? React.createElement("div",{style:{textAlign:"center",padding:"1rem",color:"#AAA",fontSize:13}},
+            s.klasse==="A" ? "Noch keine Suren abgehakt — zuerst Suren als gelernt markieren." : "Keine Suren verfügbar."
+          )
+        : React.createElement("div",null,
+            React.createElement("div",{style:{fontSize:12,color:"#888",marginBottom:6,fontWeight:500}},"Sure auswählen:"),
+            React.createElement("select",{
+              value:selectedSure,
+              onChange:e=>setSelectedSure(e.target.value),
+              style:{width:"100%",padding:"9px 12px",border:`1.5px solid ${GOLD}`,borderRadius:10,fontSize:13,background:"#FFFDF5",color:selectedSure?DARK:"#AAA",fontFamily:"inherit",outline:"none",cursor:"pointer",marginBottom:10}
+            },
+              React.createElement("option",{value:""},"— Sure auswählen —"),
+              testSuren.map(sr=>React.createElement("option",{key:sr,value:sr},sr))
+            ),
+            // Konnte / Konnte nicht Buttons
+            React.createElement("div",{style:{display:"flex",gap:8}},
+              React.createElement("button",{
+                onClick:()=>addTest(true),
+                disabled:!selectedSure||saving,
+                style:{flex:1,padding:"11px",borderRadius:10,border:"2px solid #27AE60",background:selectedSure?"#27AE60":"#F5F5F5",color:selectedSure?"white":"#CCC",fontSize:14,fontWeight:700,cursor:selectedSure?"pointer":"not-allowed",fontFamily:"inherit",transition:"all 0.2s"}
+              },"✓ Konnte es"),
+              React.createElement("button",{
+                onClick:()=>addTest(false),
+                disabled:!selectedSure||saving,
+                style:{flex:1,padding:"11px",borderRadius:10,border:`2px solid ${RED}`,background:selectedSure?RED:"#F5F5F5",color:selectedSure?"white":"#CCC",fontSize:14,fontWeight:700,cursor:selectedSure?"pointer":"not-allowed",fontFamily:"inherit",transition:"all 0.2s"}
+              },"✗ Konnte es nicht")
+            )
+          ),
+
+      // Testverlauf
+      tests.length > 0 && React.createElement("div",{style:{marginTop:14}},
+        React.createElement("div",{style:{fontSize:12,color:"#888",fontWeight:600,marginBottom:8,textTransform:"uppercase",letterSpacing:0.8}},"Testverlauf"),
+        React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:5,maxHeight:200,overflowY:"auto"}},
+          tests.map((t,i)=>React.createElement("div",{key:i,style:{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",borderRadius:8,background:t.bestanden?"#F0FFF4":"#FFF0F0",border:`1px solid ${t.bestanden?"#27AE6033":"#E74C3C33"}`}},
+            React.createElement("span",{style:{fontSize:16}},t.bestanden?"✅":"❌"),
+            React.createElement("span",{style:{flex:1,fontSize:12,color:DARK,fontWeight:500}},t.sure),
+            React.createElement("span",{style:{fontSize:11,color:"#AAA",flexShrink:0}},fmtDate(t.datum))
+          ))
+        )
+      )
+    )
+  );
+}
+
+
 // ── STUDENTS ──────────────────────────────────────────────────────────────────
 function Students({students,lektionen,byCls,clsById,getStats,getLastAtt,saveStudent,delStudent,askConfirm,progress,saveStudentProgress}){
   const [filterC,setFilterC]=useState("all");
@@ -729,6 +832,7 @@ showProg&&React.createElement("div",{style:{background:c.light,border:`1.5px sol
         React.createElement("div",{style:{fontSize:13,fontWeight:600,color:RED,marginBottom:8}},"Verpasste Themen"),
         React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},st.missed.map((t,i)=>React.createElement("span",{key:i,style:{fontSize:12,padding:"3px 10px",background:"white",border:"1px solid #E74C3C22",color:RED,borderRadius:20}},t)))
       ),
+      React.createElement(SureTest,{s,c,stuProg,progress,saveStudentProgress}),                         
       React.createElement("div",{style:{background:"white",borderRadius:16,border:`1px solid ${GOLD}22`,padding:"1rem"}},
         React.createElement("div",{style:{fontSize:14,fontWeight:600,color:GOLD,marginBottom:10}},"Anwesenheitsverlauf"),
         hist.length===0&&React.createElement("div",{style:{textAlign:"center",padding:"2rem",color:"#AAA",fontSize:14}},"Noch keine Einträge"),
