@@ -252,6 +252,7 @@ function App(){
   const [confirm,setConfirm]=useState(null);
   const [user,setUser]=useState(null);
   const [authChecked,setAuthChecked]=useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   if(type==="recovery") return React.createElement(ResetPasswordScreen,null);
 
   // Check existing session on load
@@ -277,6 +278,8 @@ function App(){
           getFortschritt(),
         ]);
         setStudents(s); setLektionen(t.reverse()); setLehrer(l); setProgress(p);
+        const currentLehrer = l.find(x => x.email === user?.email);
+        setIsAdmin(currentLehrer?.is_admin === true);
       } catch(e){ setError("Verbindungsfehler: "+e.message); }
       setLoading(false);
     })();
@@ -367,7 +370,7 @@ React.createElement("div",{style:{maxWidth:1100,margin:"0 auto",padding:"0 1.25r
     React.createElement("div",{style:{maxWidth:1100,margin:"0 auto",padding:"1.5rem 1.25rem"}},
       page==="overview"  && React.createElement(Overview,  {students,lektionen,lehrer,byCls,clsById,getStats,setPage,progress,saveClassProgress}),
       page==="statistik" && React.createElement(Statistik, {students,lektionen,byCls}),
-      page==="students"  && React.createElement(Students,  {students,lektionen,byCls,clsById,getStats,getLastAtt,saveStudent,delStudent,askConfirm,progress,saveStudentProgress}),
+      page==="students"  && React.createElement(Students,  {students,lektionen,byCls,clsById,getStats,getLastAtt,saveStudent,delStudent,askConfirm,progress,saveStudentProgress,isAdmin}),
       page==="lektionen" && React.createElement(Lektionen, {students,lektionen,lehrer,byCls,clsById,getLastAtt,saveLektion,delLektion,askConfirm}),
       page==="lehrer"    && React.createElement(LehrerPage,{lehrer,saveLehrerFn,delLehrer,askConfirm})
     ),
@@ -749,7 +752,7 @@ function SureTest({s, c, stuProg, progress, saveStudentProgress}){
 
 
 // ── STUDENTS ──────────────────────────────────────────────────────────────────
-function Students({students,lektionen,byCls,clsById,getStats,getLastAtt,saveStudent,delStudent,askConfirm,progress,saveStudentProgress}){
+function Students({students,lektionen,byCls,clsById,getStats,getLastAtt,saveStudent,delStudent,askConfirm,progress,saveStudentProgress,isAdmin}){
   const [filterC,setFilterC]=useState("all");
   const [search,setSearch]=useState("");
   const [selected,setSelected]=useState(null);
@@ -787,7 +790,7 @@ function Students({students,lektionen,byCls,clsById,getStats,getLastAtt,saveStud
               s.schuljahr&&React.createElement("div",{style:{fontSize:12,color:"#888"}},`🏫 ${s.schuljahr}. Klasse`)
             )
           ),
-          React.createElement(Btn,{onClick:()=>{setEditData({vorname:s.vorname,nachname:s.nachname,geburtsdatum:s.geburtsdatum||"",eltern:s.eltern||"",telefon:s.telefon||"",klasse:s.klasse,schuljahr:s.schuljahr||""});setEditModal(true);}},"✏️")
+          isAdmin&&React.createElement(Btn,{onClick:()=>{setEditData({vorname:s.vorname,nachname:s.nachname,geburtsdatum:s.geburtsdatum||"",eltern:s.eltern||"",telefon:s.telefon||"",klasse:s.klasse,schuljahr:s.schuljahr||""});setEditModal(true);}},"✏️")
         ),
 showProg && React.createElement("div", { style: { background: c.light, border: `1.5px solid ${c.border}33`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 } },
   React.createElement("div", { style: { fontSize: 11, color: c.color, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 } }, s.klasse === "A" ? "📖 Suren – Fortschritt" : "✏️ Aktueller Buchstabe"),
