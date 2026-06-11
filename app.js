@@ -203,6 +203,42 @@ function ResetPasswordScreen(){
   );
 }
 
+function ProfileMenu({user, onSignOut}){
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+
+  return React.createElement("div",{style:{position:"relative"}},
+    // Avatar Button
+    React.createElement("button",{
+      onClick:()=>setOpen(v=>!v),
+      style:{width:34,height:34,borderRadius:"50%",background:`linear-gradient(135deg,${GOLD},#E8C55A)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:700,color:DARK,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}
+    }, (user?.email?.split("@")[0]||"?")[0].toUpperCase()),
+
+    // Dropdown
+    open&&React.createElement("div",{style:{position:"absolute",right:0,top:42,background:"white",borderRadius:14,boxShadow:"0 8px 32px rgba(0,0,0,0.15)",border:`1.5px solid ${GOLD}33`,minWidth:180,zIndex:200,overflow:"hidden"}},
+      React.createElement("div",{style:{padding:"12px 16px",borderBottom:`1px solid ${GOLD}22`}},
+        React.createElement("div",{style:{fontSize:13,fontWeight:600,color:DARK}}),
+        React.createElement("div",{style:{fontSize:12,color:"#AAA"}},user?.email)
+      ),
+      confirm
+        ? React.createElement("div",{style:{padding:"12px 16px"}},
+            React.createElement("div",{style:{fontSize:13,color:DARK,marginBottom:10}},"Wirklich abmelden?"),
+            React.createElement("div",{style:{display:"flex",gap:8}},
+              React.createElement("button",{onClick:()=>{onSignOut();setOpen(false);setConfirm(false);},style:{flex:1,padding:"7px",background:"#C0392B",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit"}},"Ja"),
+              React.createElement("button",{onClick:()=>setConfirm(false),style:{flex:1,padding:"7px",background:"#F5F0E8",color:DARK,border:"none",borderRadius:8,cursor:"pointer",fontSize:12,fontFamily:"inherit"}},"Nein")
+            )
+          )
+        : React.createElement("button",{
+            onClick:()=>setConfirm(true),
+            style:{width:"100%",padding:"12px 16px",background:"none",border:"none",cursor:"pointer",fontSize:13,color:RED,textAlign:"left",fontFamily:"inherit"}
+          },"↩ Abmelden")
+    ),
+
+    // Backdrop
+    open&&React.createElement("div",{onClick:()=>{setOpen(false);setConfirm(false);},style:{position:"fixed",inset:0,zIndex:199}})
+  );
+}
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const [page,setPage]=useState("overview");
@@ -308,21 +344,23 @@ function App(){
   return React.createElement("div",{style:{minHeight:"100vh",background:"#FAFAF8",fontFamily:"system-ui,sans-serif",color:DARK}},
     React.createElement("div",{style:{background:"white",borderBottom:`2px solid ${GOLD}33`,boxShadow:`0 2px 16px rgba(201,168,76,0.12)`,position:"sticky",top:0,zIndex:100}},
 React.createElement("div",{style:{maxWidth:1100,margin:"0 auto",padding:"0 1.25rem"}},
-  // Zeile 1: Logo
-  React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,padding:"10px 0 0"}},
-    React.createElement("div",{style:{width:40,height:40,borderRadius:10,background:`linear-gradient(135deg,${GOLD},#E8C55A)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}},"🕌"),
-    React.createElement("div",null,
-      React.createElement("div",{style:{fontWeight:700,fontSize:14,color:DARK}},"Islamische Gemeinschaft Wil"),
-      React.createElement("div",{style:{fontSize:10,color:GOLD,fontWeight:600,letterSpacing:1.2,textTransform:"uppercase"}},"Maktab · Unterrichtsverwaltung")
-    )
+  // Zeile 1: Logo + Profil-Icon
+  React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0 0"}},
+    React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10}},
+      React.createElement("div",{style:{width:40,height:40,borderRadius:10,background:`linear-gradient(135deg,${GOLD},#E8C55A)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}},"🕌"),
+      React.createElement("div",null,
+        React.createElement("div",{style:{fontWeight:700,fontSize:14,color:DARK}},"Islamische Gemeinschaft Wil"),
+        React.createElement("div",{style:{fontSize:10,color:GOLD,fontWeight:600,letterSpacing:1.2,textTransform:"uppercase"}},"Maktab · Unterrichtsverwaltung")
+      )
+    ),
+    React.createElement(ProfileMenu,{user,onSignOut:()=>supabase.auth.signOut()})
   ),
-  // Zeile 2: Navigation + Abmelden
-  React.createElement("div",{style:{display:"flex",alignItems:"center",gap:4}},
-    syncing&&React.createElement("div",{style:{fontSize:11,color:GOLD,padding:"3px 8px",background:`${GOLD}14`,borderRadius:20,flexShrink:0}},"⟳"),
+  // Zeile 2: Navigation
+  React.createElement("div",{style:{display:"flex",alignItems:"center"}},
+    syncing&&React.createElement("div",{style:{fontSize:11,color:GOLD,padding:"3px 8px",background:`${GOLD}14`,borderRadius:20,flexShrink:0,marginRight:4}},"⟳"),
     React.createElement("nav",{style:{display:"flex",gap:2,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none",flex:1}},
       NAV.map(n=>React.createElement("button",{key:n.id,onClick:()=>setPage(n.id),style:{padding:"8px 14px",border:"none",background:page===n.id?`${GOLD}18`:"transparent",color:page===n.id?GOLD:"#888",fontSize:13,fontWeight:page===n.id?700:400,borderRadius:8,cursor:"pointer",fontFamily:"inherit",borderBottom:page===n.id?`2px solid ${GOLD}`:"2px solid transparent",whiteSpace:"nowrap"}},n.label))
-    ),
-    React.createElement("button",{onClick:()=>supabase.auth.signOut(),title:"Abmelden",style:{flexShrink:0,padding:"6px 10px",borderRadius:20,border:`1px solid ${GOLD}44`,background:"white",color:"#AAA",fontSize:11,cursor:"pointer",fontFamily:"inherit"}},"↩")
+    )
   )
 )
     ),
