@@ -335,7 +335,7 @@ function App(){
   if(loading) return React.createElement("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui"}},
     React.createElement("div",{style:{textAlign:"center"}},
       React.createElement("div",{style:{width:64,height:64,borderRadius:16,background:`linear-gradient(135deg,${GOLD},#E8C55A)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,margin:"0 auto 16px"}},"🕌"),
-      React.createElement("div",{style:{color:GOLD,fontSize:16,fontWeight:600}},"...فَاصْبِرْ صَبْرًا جَمِيلًا")
+      React.createElement("div",{style:{color:GOLD,fontSize:16,fontWeight:600}},"...⏳ فَاصْبِرْ صَبْرًا جَمِيلًا")
     )
   );
   if(error) return React.createElement("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui",padding:"2rem"}},
