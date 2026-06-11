@@ -796,8 +796,8 @@ showProg&&React.createElement("div",{style:{background:c.light,border:`1.5px sol
       const firstUncheckedIndex = SUREN.findIndex(sr => !checkedList.includes(sr));
     ? React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:4}},  
         SUREN.map((sr,i)=>{
-          const checked=(stuProg?.checked||[]).includes(sr);
-          const isNext=!checked&&(stuProg?.checked||[]).length===i;
+          const checked = checkedList.includes(sr);
+          const isNext = i === firstUncheckedIndex;
           return React.createElement("div",{key:sr,
             onClick:()=>{
               const cur=stuProg?.checked||[];
