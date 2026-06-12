@@ -651,8 +651,17 @@ function Overview({students,lektionen,lehrer,byCls,clsById,getStats,setPage,prog
   );
 }
 
+function DeleteTestBtn({onDelete}){
+  const [confirm,setConfirm]=useState(false);
+  if(confirm) return React.createElement("div",{style:{display:"flex",gap:4}},
+    React.createElement("button",{onClick:onDelete,style:{padding:"2px 8px",background:"#C0392B",color:"white",border:"none",borderRadius:6,cursor:"pointer",fontSize:11,fontWeight:700,fontFamily:"inherit"}},"Ja"),
+    React.createElement("button",{onClick:()=>setConfirm(false),style:{padding:"2px 8px",background:"#F5F0E8",color:DARK,border:"none",borderRadius:6,cursor:"pointer",fontSize:11,fontFamily:"inherit"}},"Nein")
+  );
+  return React.createElement("button",{onClick:()=>setConfirm(true),style:{background:"none",border:"none",cursor:"pointer",fontSize:14,color:"#CCC",padding:"0 2px",lineHeight:1}},"🗑");
+}
+
 // ── SURE TEST ─────────────────────────────────────────────────────────────────
-function SureTest({s, c, stuProg, progress, saveStudentProgress}){
+function SureTest({s, c, stuProg, progress, saveStudentProgress, isAdmin}){
   const [showTest, setShowTest] = useState(false);
   const [selectedSure, setSelectedSure] = useState("");
   const [saving, setSaving] = useState(false);
@@ -745,8 +754,14 @@ function SureTest({s, c, stuProg, progress, saveStudentProgress}){
           tests.map((t,i)=>React.createElement("div",{key:i,style:{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",borderRadius:8,background:t.bestanden?"#F0FFF4":"#FFF0F0",border:`1px solid ${t.bestanden?"#27AE6033":"#E74C3C33"}`}},
             React.createElement("span",{style:{fontSize:16}},t.bestanden?"✅":"❌"),
             React.createElement("span",{style:{flex:1,fontSize:12,color:DARK,fontWeight:500}},t.sure),
-            React.createElement("span",{style:{fontSize:11,color:"#AAA",flexShrink:0}},fmtDate(t.datum))
-          ))
+            React.createElement("span",{style:{fontSize:11,color:"#AAA",flexShrink:0,marginRight:6}},fmtDate(t.datum)),
+              isAdmin&&React.createElement(DeleteTestBtn,{onDelete:async()=>{
+                const existing=stuProg||{};
+                const newTests=[...existing.tests];
+                newTests.splice(i,1);
+                await saveStudentProgress(s.id,{...existing,tests:newTests,updatedAt:new Date().toISOString().slice(0,10)});
+              }})
+            ))
         )
       )
     )
@@ -879,7 +894,7 @@ showProg && React.createElement("div", { style: { background: c.light, border: `
         React.createElement("div",{style:{fontSize:13,fontWeight:600,color:RED,marginBottom:8}},"Verpasste Themen"),
         React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},st.missed.map((t,i)=>React.createElement("span",{key:i,style:{fontSize:12,padding:"3px 10px",background:"white",border:"1px solid #E74C3C22",color:RED,borderRadius:20}},t)))
       ),
-      React.createElement(SureTest,{s,c,stuProg,progress,saveStudentProgress}),                         
+      React.createElement(SureTest,{s,c,stuProg,progress,saveStudentProgress,isAdmin}),                         
       React.createElement("div",{style:{background:"white",borderRadius:16,border:`1px solid ${GOLD}22`,padding:"1rem"}},
         React.createElement("div",{style:{fontSize:14,fontWeight:600,color:GOLD,marginBottom:10}},"Anwesenheitsverlauf"),
         hist.length===0&&React.createElement("div",{style:{textAlign:"center",padding:"2rem",color:"#AAA",fontSize:14}},"Noch keine Einträge"),
